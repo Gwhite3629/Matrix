@@ -127,10 +127,10 @@ class Matrix(object):
         mag = self.vecnorm
         if (self.cols != 1):
             for col in self.cols:
-                self.data[0][col] = self.data[0][col] / mag
+                self.data[col] = self.data[col] / mag
         else:
             for row in self.rows:
-                self.data[row][0] = self.data[row][0] / mag
+                self.data[row] = self.data[row] / mag
 
     def vecnorm(self) -> float:
         if ((self.rows != 1) or (self.cols != 1)):
@@ -139,10 +139,10 @@ class Matrix(object):
         mag = 0
         if (self.cols != 1):
             for col in self.cols:
-                mag = mag + self.data[0][col]
+                mag = mag + self.data[col]
         else:
             for row in self.rows:
-                mag = mag + self.data[row][0]
+                mag = mag + self.data[row]
         mag = math.sqrt(mag)
         return mag
 
@@ -167,7 +167,6 @@ class Matrix(object):
                 k = k + 1
         if track:
             return d
-
 
     def reduce(self, track=0):
         lead = 0
@@ -275,17 +274,14 @@ class Matrix(object):
     def det (self) -> float:
         U = self.copy()
         d = U.reduce(track=1)
-        print(d)
         D = 1/d
         B = self.invert()
         for i in range(B.rows):
             D = D * B.data[i][i]
-            print(D)
         
         L = self.copy()
         d = L.echelon(track=1)
         D = D*d
-        print(d)
         for i in range(B.rows):
             D = D * 1/B.data[i][i]
 
