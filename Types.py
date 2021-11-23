@@ -146,9 +146,10 @@ class Matrix(object):
         mag = math.sqrt(mag)
         return mag
 
-    def echelon(self) -> None:
+    def echelon(self, track=0):
         h = 0
         k = 0
+        d = 1
 
         while h<self.rows and k<self.cols:
             imax = self.argmax(col=1, index=(h,k))
@@ -156,6 +157,7 @@ class Matrix(object):
                 k = k + 1
             else:
                 self.swap(h, imax)
+                d *= -1
                 for i in range(h+1, self.rows):
                     f = self.data[i][k]/self.data[h][k]
                     self.data[i][k] = 0
@@ -163,6 +165,9 @@ class Matrix(object):
                         self.data[i][j] = self.data[i][j] - self.data[h][j] * f
                 h = h + 1
                 k = k + 1
+        if track:
+            return d
+
 
     def reduce(self, track=0):
         lead = 0
@@ -268,12 +273,20 @@ class Matrix(object):
 #    def norm (self) -> Matrix:
 
     def det (self) -> float:
-        R = self.copy()
-        d = R.reduce(track=1)
+        U = self.copy()
+        d = U.reduce(track=1)
         print(d)
         D = 1/d
         B = self.invert()
         for i in range(B.rows):
             D = D * B.data[i][i]
             print(D)
+        
+        L = self.copy()
+        d = L.echelon(track=1)
+        D = D*d
+        print(d)
+        for i in range(B.rows):
+            D = D * 1/B.data[i][i]
+
         return D
