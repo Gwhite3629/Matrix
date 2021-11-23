@@ -87,14 +87,19 @@ class Matrix(object):
         self.data[row2] = VecT.data[0]
     
     def Rowmul(self,row: Iterable,mul: float) -> None:
-        for col in range(self.cols):
-            self.data[row][col] = self.data[row][col] * mul
+        if self.rows == 1:
+            for col in range(self.cols):
+                self.data[col] = self.data[col] * mul
+        else :
+            for col in range(self.cols):
+                self.data[row][col] = self.data[row][col] * mul
 
-    def Rowadd(self,row: Iterable,mul: float) -> None:
-        VecT = Matrix(1, self.rows)
-        VecT = self.data[row] * mul
+    def Rowadd(self, row1: Iterable, row2: Iterable, mul: float) -> None:
+        VecT = Matrix(1, self.cols)
+        VecT.data = self.data[row2]
+        VecT.Rowmul(0, mul)
         for col in range(self.cols):
-            self.data[row][col] = self.data[row][col] + VecT
+            self.data[row1][col] = self.data[row1][col] + VecT.data[col]
 
     def copy(self) -> 'Matrix':
         copy = Matrix(self.rows, self.cols)
@@ -141,6 +146,134 @@ class Matrix(object):
         mag = math.sqrt(mag)
         return mag
 
+    def echelon(self) -> None:
+        h = 0
+        k = 0
+
+        while h<self.rows and k<self.cols:
+            imax = self.argmax(col=1, index=(h,k))
+            if self.data[imax][k] == 0:
+                k = k + 1
+            else:
+                self.swap(h, imax)
+                for i in range(h+1, self.rows):
+                    f = self.data[i][k]/self.data[h][k]
+                    self.data[i][k] = 0
+                    for j in range(k+1, self.cols):
+                        self.data[i][j] = self.data[i][j] - self.data[h][j] * f
+                h = h + 1
+                k = k + 1
+
+    def reduce(self, track=0):
+        lead = 0
+        d = 1
+
+        for r in range(self.rows):
+            if lead >= self.cols:
+                return d
+            i = r
+            while self.data[i][lead] == 0:
+                i += 1
+                if i == self.rows:
+                    i = r
+                    lead += 1
+                    if self.cols == lead:
+                        return d
+            self.data[i],self.data[r] = self.data[r],self.data[i]
+            d *= -1
+            lv = self.data[r][lead]
+            self.data[r] = [ mrx / float(lv) for mrx in self.data[r]]
+            d *= 1/float(lv)
+            for i in range(self.rows):
+                if i != r:
+                    lv = self.data[i][lead]
+                    self.data[i] = [iv - lv*rv for rv,iv in zip(self.data[r],self.data[i])]
+            lead += 1
+        if (track):
+            return d
+
+    def argmax(self, row=0, col=0, index=(0,0)):
+        max = 0
+
+        if row == col == 0:
+            for i in range(index[0], self.rows):
+                for j in range(index[1], self.cols):
+                    if abs(self.data[i][j]) > max:
+                        max = self.data[i][j]
+                        ind = (i, j)
+        elif row == 0 and col != 0:
+            for i in range(index[0], self.rows):
+                if abs(self.data[i][index[1]]) > max:
+                    max = self.data[i][index[1]]
+                    ind = i
+        elif row != 0 and col == 0:
+            for j in range(index[1], self.rows):
+                if abs(self.data[index[0]][j]) > max:
+                    max = self.data[index[0]][j]
+                    ind = j
+        return ind
+
+    def augment(self, Mat: 'Matrix') -> None:
+        if self.rows != Mat.rows:
+            print("Matrices must have same number of rows")
+            return IndexError
+        self.reshape(self.rows, self.cols+Mat.cols)
+        if Mat.cols == 1:
+            for i in range(self.rows):
+                self.data[i][self.cols] = Mat.data[i]
+        else:
+            for i in range(self.rows):
+                for j in range(self.cols-Mat.cols, self.cols):
+                    self.data[i][j] = Mat.data[i][j-self.cols]
+
+    def invert(self) -> 'Matrix':
+        if (self.rows != self.cols):
+            print("Matrix must be square")
+            return IndexError
+        I = Matrix(self.rows, self.cols)
+        I.Identity()
+        copy = self.copy()
+        copy.augment(I)
+        copy.reduce()
+        Test = copy.slice((0,copy.rows-1),(0,copy.rows-1))
+        if (Test.compare(I)):
+            inv = copy.slice((0,copy.rows-1),(copy.rows,2*copy.rows-1))
+            return inv
+        else:
+            print("Inverse Matrix does not exist")
+            return I
+
+    def slice(self, rows, cols) -> 'Matrix':
+        Out = Matrix(rows[1]-rows[0]+1,cols[1]-cols[0]+1)
+        for i in range(Out.rows):
+            for j in range(Out.cols):
+                Out.data[i][j] = self.data[rows[0]+i][cols[0]+j]
+        return Out
+
+    def Identity(self) -> None:
+        if self.rows != self.cols:
+            self.reshape(self.rows, self.rows)
+        for i in range(self.rows):
+            self.data[i][i] = 1
+
+    def compare(self, Mat: 'Matrix') -> bool:
+        if (self.rows != Mat.rows or self.cols != Mat.cols):
+            print("Error matrices must be the same size")
+        for i in range(self.rows):
+            for j in range(self.cols):
+                if (math.isclose(self.data[i][j],Mat.data[i][j],rel_tol=1e-3) != 1):
+                    return 0
+        return 1
+
 #    def norm (self) -> Matrix:
 
-#    def det (self) -> float:
+    def det (self) -> float:
+        R = self.copy()
+        d = R.reduce(track=1)
+        print(d)
+        D = 1/d
+        B = self.invert()
+        for i in range(B.rows):
+            D = D * B.data[i][i]
+            print(D)
+        return D

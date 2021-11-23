@@ -27,3 +27,16 @@ print(f'B Resized: {B.data}')
 C = A.product(B)
 
 print(f'A.Product(B): {C.data}')
+
+T = M(3, 3)
+
+T.data = [[2, -1, 0],
+          [-1, 2, -1],
+          [0, -1, 2]]
+
+B = T.invert()
+
+D = T.det()
+
+print(f'Inverse of T: {B.data}')
+print(f'Determinant of T: {D}')
