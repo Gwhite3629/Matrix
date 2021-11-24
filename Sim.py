@@ -34,9 +34,20 @@ T.data = [[2, 3, 1],
           [4, 5, 6],
           [7, 8, 9]]
 
+print(f'Rank of T: {T.rank()}')
+
 B = T.invert()
 
 D = T.det()
 
 print(f'Inverse of T: {B.data}')
 print(f'Determinant of T: {D}')
+
+U = M(2, 2)
+
+U.data = [[3,2],
+          [1,2]]
+
+U.orthonormal()
+
+print(f'Ortho of U: {U.data}')

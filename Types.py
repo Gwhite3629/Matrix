@@ -103,9 +103,15 @@ class Matrix(object):
 
     def copy(self) -> 'Matrix':
         copy = Matrix(self.rows, self.cols)
-        for row in range(self.rows):
-            for col in range(self.cols):
-                copy.data[row][col] = self.data[row][col]
+        if (self.rows == 1):
+            copy.data = self.data
+        elif (self.cols == 1):
+            for j in range(self.cols):
+                copy.data[j] = self.data[j]
+        else:
+            for row in range(self.rows):
+                for col in range(self.cols):
+                    copy.data[row][col] = self.data[row][col]
 
         return copy
 
@@ -121,27 +127,28 @@ class Matrix(object):
         return self.rows, self.cols
 
     def normalize(self) -> None:
-        if ((self.rows != 1) or (self.cols != 1)):
+        if ((self.rows != 1) and (self.cols != 1)):
             print("Input must be vector")
             return IndexError
-        mag = self.vecnorm
+        mag = self.vecnorm()
+        print(mag)
         if (self.cols != 1):
-            for col in self.cols:
+            for col in range(self.cols):
                 self.data[col] = self.data[col] / mag
         else:
-            for row in self.rows:
+            for row in range(self.rows):
                 self.data[row] = self.data[row] / mag
 
     def vecnorm(self) -> float:
-        if ((self.rows != 1) or (self.cols != 1)):
+        if ((self.rows != 1) and (self.cols != 1)):
             print("Input must be vector")
             return IndexError
         mag = 0
         if (self.cols != 1):
-            for col in self.cols:
+            for col in range(self.cols):
                 mag = mag + self.data[col]
         else:
-            for row in self.rows:
+            for row in range(self.rows):
                 mag = mag + self.data[row]
         mag = math.sqrt(mag)
         return mag
@@ -286,3 +293,55 @@ class Matrix(object):
             D = D * 1/B.data[i][i]
 
         return D
+
+    def rank(self) -> int:
+        rank = 0
+        E = self.copy()
+        E.echelon()
+        if E.rows > E.cols:
+            E.T()
+        for i in range(E.rows):
+            for j in range(E.cols):
+                if E.data[i][j] > 0:
+                    rank += 1
+                    break
+
+        return rank
+
+#    def span(self) -> 
+#    def basis(self) ->
+#    def LU(self) ->
+#    def perm(self) ->
+#    def minor(self, row, col) ->
+#    def complement(self, row, col) ->
+#    def CT(self) ->
+#    def eigenvalue(self) ->
+#    def eigenvector(self, EV) ->
+#    def QR(self) ->
+    def orthonormal(self) -> 'Matrix':
+        U = Matrix(self.rows, self.cols)
+        N = Matrix(1,self.cols)
+        self.T()
+        U.T()
+        N.data = self.data[0]
+        n = N.copy()
+        N.normalize()
+        U.data[0] = N.data
+        for i in range(1,U.rows):
+            U.data[i] = self.data[i]
+            for j in range(0,i-1):
+                N.data = U.data[i]
+                n.data = U.data[j]
+                n.T()
+                N = n.product(N)
+                n.T()
+                t = N.vecnorm()
+                N.Scamul(-1/t^2)
+                N.product(n)
+                U.add(N)
+            N.data = U.data[i]
+            N.normalize()
+            U.data[i] = N.data
+        self.T()
+        U.T()
+        return U
