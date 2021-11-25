@@ -128,10 +128,9 @@ class Matrix(object):
 
     def normalize(self) -> None:
         if ((self.rows != 1) and (self.cols != 1)):
-            print("Input must be vector")
+            print("Input must be vector, norm")
             return IndexError
         mag = self.vecnorm()
-        print(mag)
         if (self.cols != 1):
             for col in range(self.cols):
                 self.data[col] = self.data[col] / mag
@@ -141,15 +140,15 @@ class Matrix(object):
 
     def vecnorm(self) -> float:
         if ((self.rows != 1) and (self.cols != 1)):
-            print("Input must be vector")
+            print("Input must be vector, vecnorm")
             return IndexError
         mag = 0
         if (self.cols != 1):
             for col in range(self.cols):
-                mag = mag + self.data[col]
+                mag = mag + self.data[col]**2
         else:
             for row in range(self.rows):
-                mag = mag + self.data[row]
+                mag = mag + self.data[row]**2
         mag = math.sqrt(mag)
         return mag
 
@@ -317,31 +316,26 @@ class Matrix(object):
 #    def CT(self) ->
 #    def eigenvalue(self) ->
 #    def eigenvector(self, EV) ->
-#    def QR(self) ->
+    def QR(self) -> tuple['Matrix', 'Matrix']:
+        Q = self.orthonormal()
+        Q.T()
+        R = Q.product(self)
+        return (Q, R)
+
     def orthonormal(self) -> 'Matrix':
-        U = Matrix(self.rows, self.cols)
-        N = Matrix(1,self.cols)
-        self.T()
-        U.T()
-        N.data = self.data[0]
-        n = N.copy()
-        N.normalize()
-        U.data[0] = N.data
-        for i in range(1,U.rows):
-            U.data[i] = self.data[i]
-            for j in range(0,i-1):
-                N.data = U.data[i]
-                n.data = U.data[j]
-                n.T()
-                N = n.product(N)
-                n.T()
-                t = N.vecnorm()
-                N.Scamul(-1/t^2)
-                N.product(n)
-                U.add(N)
-            N.data = U.data[i]
-            N.normalize()
-            U.data[i] = N.data
-        self.T()
-        U.T()
+        L = self.gram()
+        L.augment(self.copy())
+        L.echelon()
+        U = L.slice((0,self.rows-1),(self.cols,self.cols+self.rows-1))
+        R = Matrix(1,U.cols)
+        for row in range(U.rows):
+            R.data = U.data[row]
+            R.normalize()
+            U.data[row] = R.data
         return U
+    
+    def gram(self) -> 'Matrix':
+        T = self.copy()
+        T.T()
+        G = self.product(T)
+        return G

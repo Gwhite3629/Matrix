@@ -45,9 +45,9 @@ print(f'Determinant of T: {D}')
 
 U = M(2, 2)
 
-U.data = [[3,2],
-          [1,2]]
+U.data = [[3, 1],
+          [2, 2]]
 
-U.orthonormal()
+L = U.orthonormal()
 
-print(f'Ortho of U: {U.data}')
+print(f'Orthonormal of U: {L.data}')
