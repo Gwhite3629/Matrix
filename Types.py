@@ -55,10 +55,20 @@ class Matrix(object):
             print("Columns of matrix A must equal rows of matrix B")
             return BufferError
         Out = Matrix(self.rows, Mat.cols)
-        for i in range(self.rows):
-            for j in range(Mat.cols):
-                for n in range(self.cols):
-                    Out.data[i][j] += (self.data[i][n] * Mat.data[n][j])
+        if self.rows == 1:
+            for i in range(self.cols):
+                for j in range(Mat.rows):
+                    Out.data[0][0] += (self.data[i] * Mat.data[j])
+        elif self.cols == 1:
+            for i in range(self.rows):
+                for j in range(Mat.cols):
+                    Out.data[0][0] += (self.data[i] * Mat.data[j])
+        else:
+            Out = Matrix(self.rows, Mat.cols)
+            for i in range(self.rows):
+                for j in range(Mat.cols):
+                    for n in range(self.cols):
+                        Out.data[i][j] += (self.data[i][n] * Mat.data[n][j])
         return Out
 
     def dot(self,Mat: 'Matrix') -> float:
@@ -101,6 +111,10 @@ class Matrix(object):
         for col in range(self.cols):
             self.data[row1][col] = self.data[row1][col] + VecT.data[col]
 
+    def Eadd(self, row: Iterable, val: float) -> None:
+        for i in range(self.cols):
+            self.data[row][i] = self.data[row][i] + val
+
     def copy(self) -> 'Matrix':
         copy = Matrix(self.rows, self.cols)
         if (self.rows == 1):
@@ -117,9 +131,16 @@ class Matrix(object):
 
     def T(self) -> None:
         new = Matrix(rows=self.cols, cols=self.rows)
-        for row in range(self.rows):
+        if self.rows == 1:
             for col in range(self.cols):
-                new.data[col][row] = self.data[row][col]
+                new.data[col] = self.data[col]
+        elif self.cols == 1:
+            for row in range(self.rows):
+                new.data[row] = self.data[row]
+        else:
+            for row in range(self.rows):
+                for col in range(self.cols):
+                    new.data[col][row] = self.data[row][col]
         self.data = new.data
         self.rows, self.cols = new.rows, new.cols
 
@@ -173,6 +194,13 @@ class Matrix(object):
                 k = k + 1
         if track:
             return d
+
+    def echelonStrict(self):
+        # TODO
+        # Add echelon function that only
+        # operates by adding multiples
+        # of rows to others for simplification
+        return
 
     def reduce(self, track=0):
         lead = 0
@@ -316,6 +344,7 @@ class Matrix(object):
 #    def CT(self) ->
 #    def eigenvalue(self) ->
 #    def eigenvector(self, EV) ->
+
     def QR(self) -> tuple['Matrix', 'Matrix']:
         Q = self.orthonormal()
         Q.T()
@@ -323,17 +352,35 @@ class Matrix(object):
         return (Q, R)
 
     def orthonormal(self) -> 'Matrix':
-        L = self.gram()
-        L.augment(self.copy())
-        L.echelon()
-        U = L.slice((0,self.rows-1),(self.cols,self.cols+self.rows-1))
-        R = Matrix(1,U.cols)
-        for row in range(U.rows):
-            R.data = U.data[row]
-            R.normalize()
-            U.data[row] = R.data
+        self.T()
+        U = Matrix(self.rows,self.cols)
+        V = Matrix(1,self.cols)
+        V.data = self.data[0]
+        V = V.copy()
+        V.normalize()
+        U.data[0] = V.data
+        for i in range(1,self.cols):
+            U.data[i] = self.data[i]
+            for j in range(0,i-1):
+                V1, V2 = Matrix(1,self.cols), Matrix(1, self.cols)
+                V1.data = U.data[j]
+                V2.data = U.data[i]
+                print(V2.shape())
+                V2.T()
+                print(V2.shape())
+                n = V1.product(V2)
+                N = n.data[0][0]
+                D = (V1.vecnorm())**2
+                val = -1*N/D
+                U.Rowadd(i,j,val)
+            Urow = Matrix(1,self.cols)
+            Urow.data = U.data[i]
+            Urow.normalize()
+            U.data[i] = Urow.data
+        self.T()
+        U.T()
         return U
-    
+
     def gram(self) -> 'Matrix':
         T = self.copy()
         T.T()

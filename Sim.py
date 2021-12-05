@@ -43,11 +43,13 @@ D = T.det()
 print(f'Inverse of T: {B.data}')
 print(f'Determinant of T: {D}')
 
-U = M(2, 2)
+U = M(3, 3)
 
-U.data = [[3, 1],
-          [2, 2]]
+U.data = [[12, -51, 4],
+          [6, 167, -68],
+          [-4, 24, -41]]
 
-L = U.orthonormal()
+(Q, R) = U.QR()
 
-print(f'Orthonormal of U: {L.data}')
+print(f'Q of U: {Q.data}')
+print(f'R of U: {R.data}')
