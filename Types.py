@@ -344,13 +344,13 @@ class Matrix(object):
     def delrow(self, row) -> 'Matrix':
         aug = Matrix(self.rows-1, self.cols)
         flag = 0
-        for i in range(aug.cols):
-            for j in range(aug.rows):
-                if ((j == (row-1)) | flag):
-                    aug.data[j][i] = self.data[j+1][i]
+        for i in range(aug.rows):
+            for j in range(aug.cols):
+                if ((i == (row-1)) | flag):
+                    aug.data[i][j] = self.data[i+1][j]
                     flag = 1
                 else:
-                    aug.data[j][i] = self.data[j][i]
+                    aug.data[i][j] = self.data[i][j]
 
         return aug
 
@@ -367,14 +367,23 @@ class Matrix(object):
 
         return aug
 
+    def minor(self, row, col) -> float:
+        sub = self.submatrix(row, col)
+        det = sub.det()
+        return det
+
+    def cofactor(self, row, col) -> float:
+        det = self.minor(row, col)
+        cofactor = det*(-1)**(row+col)
+        return cofactor
+
+#    def complement(self, row, col) ->
+
 #    def dim(self) ->
 #    def span(self) -> 
 #    def basis(self) ->
 #    def LU(self) ->
 #    def perm(self) ->
-#    def minor(self, row, col) ->
-#    def cofactor(self, row, col) ->
-#    def complement(self, row, col) ->
 #    def CT(self) ->
 #    def eigenvalue(self) ->
 #    def eigenvector(self, EV) ->

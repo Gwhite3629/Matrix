@@ -45,11 +45,15 @@ print(f'Determinant of T: {D}')
 
 U = M(3, 3)
 
-U.data = [[12, -51, 4],
-          [6, 167, -68],
-          [-4, 24, -41]]
+U.data = [[1, 4, 7],
+          [3, 0, 5],
+          [-1, 9, 11]]
 
-subU = U.submatrix(1, 3)
+subU = U.submatrix(2, 3)
+minor = U.minor(2, 3)
+coF = U.cofactor(2, 3)
 
 print(f'U: {U.data}')
-print(f'Sub 1,3 of U: {subU.data}')
+print(f'Sub 2,3 of U: {subU.data}')
+print(f'Minor 2,3 of U: {minor}')
+print(f'Cofactor 2,3 of U: {coF}')
