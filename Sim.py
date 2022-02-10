@@ -49,7 +49,7 @@ U.data = [[12, -51, 4],
           [6, 167, -68],
           [-4, 24, -41]]
 
-(Q, R) = U.QR()
+subU = U.submatrix(1, 3)
 
-print(f'Q of U: {Q.data}')
-print(f'R of U: {R.data}')
+print(f'U: {U.data}')
+print(f'Sub 1,3 of U: {subU.data}')

@@ -335,11 +335,45 @@ class Matrix(object):
 
         return rank
 
+    def submatrix(self, row, col) -> 'Matrix':
+        R = self.delrow(row)
+        sub = R.delcol(col)
+
+        return sub
+
+    def delrow(self, row) -> 'Matrix':
+        aug = Matrix(self.rows-1, self.cols)
+        flag = 0
+        for i in range(aug.cols):
+            for j in range(aug.rows):
+                if ((j == (row-1)) | flag):
+                    aug.data[j][i] = self.data[j+1][i]
+                    flag = 1
+                else:
+                    aug.data[j][i] = self.data[j][i]
+
+        return aug
+
+    def delcol(self, col) -> 'Matrix':
+        aug = Matrix(self.rows, self.cols-1)
+        flag = 0
+        for i in range(aug.rows):
+            for j in range(aug.cols):
+                if((j == (col-1)) | flag):
+                    aug.data[i][j] = self.data[i][j+1]
+                    flag = 1
+                else:
+                    aug.data[i][j] = self.data[i][j]
+
+        return aug
+
+#    def dim(self) ->
 #    def span(self) -> 
 #    def basis(self) ->
 #    def LU(self) ->
 #    def perm(self) ->
 #    def minor(self, row, col) ->
+#    def cofactor(self, row, col) ->
 #    def complement(self, row, col) ->
 #    def CT(self) ->
 #    def eigenvalue(self) ->
