@@ -1,4 +1,5 @@
 from Types import Matrix as M
+from decimal import *
 
 A = M(3, 2)
 B = M(2, 3)
@@ -38,6 +39,8 @@ print(f'Rank of T: {T.rank()}')
 
 B = T.invert()
 
+B.round(10)
+
 D = T.det()
 
 print(f'Inverse of T: {B.data}')
@@ -45,15 +48,23 @@ print(f'Determinant of T: {D}')
 
 U = M(3, 3)
 
-U.data = [[1, 4, 7],
-          [3, 0, 5],
-          [-1, 9, 11]]
+U.data = [[12, -51, 4],
+          [6, 167, -68],
+          [-4, 24, -41]]
 
-subU = U.submatrix(2, 3)
-minor = U.minor(2, 3)
-coF = U.cofactor(2, 3)
+(Q, R) = U.QR()
+
+QT = Q.copy()
+
+QT.T()
+
+I = Q.product(QT)
+
+Q.round(10)
+R.round(10)
+I.round(10)
 
 print(f'U: {U.data}')
-print(f'Sub 2,3 of U: {subU.data}')
-print(f'Minor 2,3 of U: {minor}')
-print(f'Cofactor 2,3 of U: {coF}')
+print(f'Q of U: {Q.data}')
+print(f'R of U: {R.data}')
+print(f'Identity: {I.data}')

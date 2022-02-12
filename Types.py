@@ -1,5 +1,6 @@
 import math
 from typing import Iterable
+from decimal import *
 
 class Matrix(object):
     def __init__(self,rows: int,cols: int) -> None:
@@ -377,8 +378,6 @@ class Matrix(object):
         cofactor = det*(-1)**(row+col)
         return cofactor
 
-#    def complement(self, row, col) ->
-
 #    def dim(self) ->
 #    def span(self) -> 
 #    def basis(self) ->
@@ -389,9 +388,25 @@ class Matrix(object):
 #    def eigenvector(self, EV) ->
 
     def QR(self) -> tuple['Matrix', 'Matrix']:
-        Q = self.orthonormal()
-        Q.T()
-        R = Q.product(self)
+        n = self.cols
+        m = self.rows
+        A = self.copy()
+        Q = Matrix(m, n)
+        R = Matrix(n, n)
+        for k in range(n):
+            s = 0
+            for j in range(m):
+                s = s+(A.data[j][k])**2
+            R.data[k][k] = math.sqrt(s)
+            for j in range(m):
+                Q.data[j][k] = (A.data[j][k])/(R.data[k][k])
+            for i in range(k+1,n):
+                s = 0
+                for j in range(m):
+                    s = s + (A.data[j][i]) * (Q .data[j][k])
+                R.data[k][i] = s
+                for j in range(m):
+                    A.data[j][i] = A.data[j][i] - (R.data[k][i] * Q.data[j][k])
         return (Q, R)
 
     def orthonormal(self) -> 'Matrix':
@@ -429,3 +444,8 @@ class Matrix(object):
         T.T()
         G = self.product(T)
         return G
+
+    def round(self, precision) -> None:
+        for i in range(self.rows):
+            for j in range(self.cols):
+                self.data[i][j] = round(self.data[i][j], precision)
