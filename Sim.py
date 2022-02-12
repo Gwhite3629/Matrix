@@ -54,17 +54,6 @@ U.data = [[12, -51, 4],
 
 (Q, R) = U.QR()
 
-QT = Q.copy()
-
-QT.T()
-
-I = Q.product(QT)
-
-Q.round(10)
-R.round(10)
-I.round(10)
-
-print(f'U: {U.data}')
-print(f'Q of U: {Q.data}')
-print(f'R of U: {R.data}')
-print(f'Identity: {I.data}')
+print(f'U: \n{U}')
+print(f'Q: \n{Q}')
+print(f'R: \n{R}')

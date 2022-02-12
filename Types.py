@@ -13,7 +13,19 @@ class Matrix(object):
             self.cols = cols
         for row in range(self.rows):
             for col in range(self.cols):
-                self.data[row][col] = 0.0
+                self[row][col] = 0.0
+
+    def __str__(self):
+        rounded = self.copy()
+        rounded.round(10)
+        return ('|\n'.join('|' + '  '.join(map(str, r)) for r in rounded)) + '|'
+
+
+    def __getitem__(self,index):
+        return self.data[index]
+
+    def __setitem__(self, index, val):
+        self.data[index] = val
 
     def ins(self,row: Iterable,col: Iterable,datum: float) -> None:
         if (row >= self.rows or col >= self.cols):
@@ -249,6 +261,27 @@ class Matrix(object):
             for j in range(index[1], self.rows):
                 if abs(self.data[index[0]][j]) > max:
                     max = self.data[index[0]][j]
+                    ind = j
+        return ind
+
+    def argmin(self, row=0, col=0, index=(0,0)):
+        min = 0
+
+        if row == col == 0:
+            for i in range(index[0], self.rows):
+                for j in range(index[1], self.cols):
+                    if abs(self.data[i][j]) < min:
+                        min = self.data[i][j]
+                        ind = (i, j)
+        elif row == 0 and col != 0:
+            for i in range(index[0], self.rows):
+                if abs(self.data[i][index[1]]) < min:
+                    min = self.data[i][index[1]]
+                    ind = i
+        elif row != 0 and col == 0:
+            for j in range(index[1], self.rows):
+                if abs(self.data[index[0]][j]) < min:
+                    min = self.data[index[0]][j]
                     ind = j
         return ind
 
