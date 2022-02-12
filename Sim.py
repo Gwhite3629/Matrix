@@ -48,12 +48,24 @@ print(f'Determinant of T: {D}')
 
 U = M(3, 3)
 
-U.data = [[12, -51, 4],
-          [6, 167, -68],
-          [-4, 24, -41]]
+U.data = [[2, 4, 7],
+          [3, 1, 5],
+          [-1, 9, 21]]
+
+print(f'U: \n{U}')
 
 (Q, R) = U.QR()
 
-print(f'U: \n{U}')
 print(f'Q: \n{Q}')
 print(f'R: \n{R}')
+
+print(f'Echelon Det(U): {U.det()}')
+print(f'Laplace Det(U): {U.det(method="laplace")}')
+
+C = M(3, 3)
+
+C.data = [[1, 2, 3],
+          [4, 5, 6],
+          [7, 8, 9]]
+
+print(f'Cofactor of C: {C.cofactor(1, 2)}')

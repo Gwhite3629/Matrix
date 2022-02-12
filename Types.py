@@ -1,4 +1,5 @@
 import math
+from pickle import TRUE
 from typing import Iterable
 from decimal import *
 
@@ -338,21 +339,28 @@ class Matrix(object):
 
 #    def norm (self) -> Matrix:
 
-    def det (self) -> float:
-        U = self.copy()
-        d = U.reduce(track=1)
-        D = 1/d
-        B = self.invert()
-        for i in range(B.rows):
-            D = D * B[i][i]
-        
-        L = self.copy()
-        d = L.echelon(track=1)
-        D = D*d
-        for i in range(B.rows):
-            D = D * 1/B[i][i]
+    def det (self, method='echelon') -> float:
+        match method:
+            case 'echelon':
+                U = self.copy()
+                d = U.reduce(track=1)
+                D = 1/d
+                B = self.invert()
+                for i in range(B.rows):
+                    D = D * B[i][i]
+                
+                L = self.copy()
+                d = L.echelon(track=1)
+                D = D*d
+                for i in range(B.rows):
+                    D = D * 1/B[i][i]
 
-        return D
+                return D
+            case 'laplace':
+                D = 0
+                for j in range(self.cols):
+                    D += self[1][j] * self.cofactor(1, j)
+                return D
 
     def rank(self) -> int:
         rank = 0
@@ -379,7 +387,7 @@ class Matrix(object):
         flag = 0
         for i in range(aug.rows):
             for j in range(aug.cols):
-                if ((i == (row-1)) | flag):
+                if ((i == (row)) | flag):
                     aug[i][j] = self[i+1][j]
                     flag = 1
                 else:
@@ -392,7 +400,7 @@ class Matrix(object):
         flag = 0
         for i in range(aug.rows):
             for j in range(aug.cols):
-                if((j == (col-1)) | flag):
+                if((j == (col)) | flag):
                     aug[i][j] = self[i][j+1]
                     flag = 1
                 else:
@@ -428,17 +436,17 @@ class Matrix(object):
         for k in range(n):
             s = 0
             for j in range(m):
-                s = s+(A[j][k])**2
-            R.data[k][k] = math.sqrt(s)
+                s += (A[j][k])**2
+            R[k][k] = math.sqrt(s)
             for j in range(m):
                 Q[j][k] = (A[j][k])/(R[k][k])
             for i in range(k+1,n):
                 s = 0
                 for j in range(m):
-                    s = s + (A[j][i]) * (Q[j][k])
-                R.data[k][i] = s
+                    s += (A[j][i]) * (Q[j][k])
+                R[k][i] = s
                 for j in range(m):
-                    A[j][i] = A[j][i] - (R[k][i] * Q[j][k])
+                    A[j][i] -= (R[k][i] * Q[j][k])
         return (Q, R)
 
     def orthonormal(self) -> 'Matrix':
