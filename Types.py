@@ -20,7 +20,6 @@ class Matrix(object):
         rounded.round(10)
         return ('|\n'.join('|' + '  '.join(map(str, r)) for r in rounded)) + '|'
 
-
     def __getitem__(self,index):
         return self.data[index]
 
@@ -31,14 +30,14 @@ class Matrix(object):
         if (row >= self.rows or col >= self.cols):
             print("Resizing")
             self.reshape(row, col)
-        self.data[row][col] = datum
+        self[row][col] = datum
 
     def reshape(self,rows: int,cols: int) -> None:
         new = Matrix(rows, cols)
         for row in range(self.rows):
             for col in range(self.cols):
                 try:
-                    new.data[row][col] = self.data[row][col]
+                    new[row][col] = self[row][col]
                 except:
                     pass
         self.data = new.data
@@ -51,7 +50,7 @@ class Matrix(object):
         Out = Matrix(self.rows, self.cols)
         for row in range(self.rows):
             for col in range(self.cols):
-                Out.data[row][col] = self.data[row][col] + Mat.data[row][col]
+                Out[row][col] = self[row][col] + Mat[row][col]
 
         return Out
 
@@ -59,7 +58,7 @@ class Matrix(object):
         Out = Matrix(self.rows, self.cols)
         for row in range(self.rows):
             for col in range(self.cols):
-                Out.data[row][col] = self.data[row][col] * Scalar
+                Out[row][col] = self[row][col] * Scalar
 
         return Out
 
@@ -71,17 +70,17 @@ class Matrix(object):
         if self.rows == 1:
             for i in range(self.cols):
                 for j in range(Mat.rows):
-                    Out.data[0][0] += (self.data[i] * Mat.data[j])
+                    Out[0][0] += (self[i] * Mat[j])
         elif self.cols == 1:
             for i in range(self.rows):
                 for j in range(Mat.cols):
-                    Out.data[0][0] += (self.data[i] * Mat.data[j])
+                    Out[0][0] += (self[i] * Mat[j])
         else:
             Out = Matrix(self.rows, Mat.cols)
             for i in range(self.rows):
                 for j in range(Mat.cols):
                     for n in range(self.cols):
-                        Out.data[i][j] += (self.data[i][n] * Mat.data[n][j])
+                        Out[i][j] += (self[i][n] * Mat[n][j])
         return Out
 
     def dot(self,Mat: 'Matrix') -> float:
@@ -90,7 +89,7 @@ class Matrix(object):
             return IndexError
         Scalar = 0
         for row in range(self.rows):
-            Scalar += self.data[row][0] * Mat.data[row][0]
+            Scalar += self[row][0] * Mat[row][0]
         return Scalar
 
     def trace(self) -> float:
@@ -99,34 +98,34 @@ class Matrix(object):
             print("Matrix must be square")
             return IndexError
         for row in range(self.rows):
-            Scalar = Scalar + self.data[row][row]
+            Scalar = Scalar + self[row][row]
 
         return Scalar
 
     def swap(self,row1: Iterable,row2: Iterable) -> None:
         VecT = Matrix(1, self.rows)
-        VecT.data[0] = self.data[row1]
-        self.data[row1] = self.data[row2]
-        self.data[row2] = VecT.data[0]
+        VecT[0] = self[row1]
+        self[row1] = self[row2]
+        self[row2] = VecT[0]
     
     def Rowmul(self,row: Iterable,mul: float) -> None:
         if self.rows == 1:
             for col in range(self.cols):
-                self.data[col] = self.data[col] * mul
+                self[col] = self[col] * mul
         else :
             for col in range(self.cols):
-                self.data[row][col] = self.data[row][col] * mul
+                self[row][col] = self[row][col] * mul
 
     def Rowadd(self, row1: Iterable, row2: Iterable, mul: float) -> None:
         VecT = Matrix(1, self.cols)
-        VecT.data = self.data[row2]
+        VecT.data = self[row2]
         VecT.Rowmul(0, mul)
         for col in range(self.cols):
-            self.data[row1][col] = self.data[row1][col] + VecT.data[col]
+            self[row1][col] = self[row1][col] + VecT[col]
 
     def Eadd(self, row: Iterable, val: float) -> None:
         for i in range(self.cols):
-            self.data[row][i] = self.data[row][i] + val
+            self[row][i] = self[row][i] + val
 
     def copy(self) -> 'Matrix':
         copy = Matrix(self.rows, self.cols)
@@ -134,11 +133,11 @@ class Matrix(object):
             copy.data = self.data
         elif (self.cols == 1):
             for j in range(self.cols):
-                copy.data[j] = self.data[j]
+                copy[j] = self[j]
         else:
             for row in range(self.rows):
                 for col in range(self.cols):
-                    copy.data[row][col] = self.data[row][col]
+                    copy[row][col] = self[row][col]
 
         return copy
 
@@ -146,14 +145,14 @@ class Matrix(object):
         new = Matrix(rows=self.cols, cols=self.rows)
         if self.rows == 1:
             for col in range(self.cols):
-                new.data[col] = self.data[col]
+                new[col] = self[col]
         elif self.cols == 1:
             for row in range(self.rows):
-                new.data[row] = self.data[row]
+                new[row] = self[row]
         else:
             for row in range(self.rows):
                 for col in range(self.cols):
-                    new.data[col][row] = self.data[row][col]
+                    new[col][row] = self[row][col]
         self.data = new.data
         self.rows, self.cols = new.rows, new.cols
 
@@ -167,10 +166,10 @@ class Matrix(object):
         mag = self.vecnorm()
         if (self.cols != 1):
             for col in range(self.cols):
-                self.data[col] = self.data[col] / mag
+                self[col] = self[col] / mag
         else:
             for row in range(self.rows):
-                self.data[row] = self.data[row] / mag
+                self[row] = self[row] / mag
 
     def vecnorm(self) -> float:
         if ((self.rows != 1) and (self.cols != 1)):
@@ -179,10 +178,10 @@ class Matrix(object):
         mag = 0
         if (self.cols != 1):
             for col in range(self.cols):
-                mag = mag + self.data[col]**2
+                mag = mag + self[col]**2
         else:
             for row in range(self.rows):
-                mag = mag + self.data[row]**2
+                mag = mag + self[row]**2
         mag = math.sqrt(mag)
         return mag
 
@@ -193,16 +192,16 @@ class Matrix(object):
 
         while h<self.rows and k<self.cols:
             imax = self.argmax(col=1, index=(h,k))
-            if self.data[imax][k] == 0:
+            if self[imax][k] == 0:
                 k = k + 1
             else:
                 self.swap(h, imax)
                 d *= -1
                 for i in range(h+1, self.rows):
-                    f = self.data[i][k]/self.data[h][k]
-                    self.data[i][k] = 0
+                    f = self[i][k]/self[h][k]
+                    self[i][k] = 0
                     for j in range(k+1, self.cols):
-                        self.data[i][j] = self.data[i][j] - self.data[h][j] * f
+                        self[i][j] = self[i][j] - self[h][j] * f
                 h = h + 1
                 k = k + 1
         if track:
@@ -223,22 +222,22 @@ class Matrix(object):
             if lead >= self.cols:
                 return d
             i = r
-            while self.data[i][lead] == 0:
+            while self[i][lead] == 0:
                 i += 1
                 if i == self.rows:
                     i = r
                     lead += 1
                     if self.cols == lead:
                         return d
-            self.data[i],self.data[r] = self.data[r],self.data[i]
+            self[i],self[r] = self[r],self[i]
             d *= -1
-            lv = self.data[r][lead]
-            self.data[r] = [ mrx / float(lv) for mrx in self.data[r]]
+            lv = self[r][lead]
+            self[r] = [ mrx / float(lv) for mrx in self[r]]
             d *= 1/float(lv)
             for i in range(self.rows):
                 if i != r:
-                    lv = self.data[i][lead]
-                    self.data[i] = [iv - lv*rv for rv,iv in zip(self.data[r],self.data[i])]
+                    lv = self[i][lead]
+                    self[i] = [iv - lv*rv for rv,iv in zip(self[r],self[i])]
             lead += 1
         if (track):
             return d
@@ -249,18 +248,18 @@ class Matrix(object):
         if row == col == 0:
             for i in range(index[0], self.rows):
                 for j in range(index[1], self.cols):
-                    if abs(self.data[i][j]) > max:
-                        max = self.data[i][j]
+                    if abs(self[i][j]) > max:
+                        max = self[i][j]
                         ind = (i, j)
         elif row == 0 and col != 0:
             for i in range(index[0], self.rows):
-                if abs(self.data[i][index[1]]) > max:
-                    max = self.data[i][index[1]]
+                if abs(self[i][index[1]]) > max:
+                    max = self[i][index[1]]
                     ind = i
         elif row != 0 and col == 0:
             for j in range(index[1], self.rows):
-                if abs(self.data[index[0]][j]) > max:
-                    max = self.data[index[0]][j]
+                if abs(self[index[0]][j]) > max:
+                    max = self[index[0]][j]
                     ind = j
         return ind
 
@@ -270,18 +269,18 @@ class Matrix(object):
         if row == col == 0:
             for i in range(index[0], self.rows):
                 for j in range(index[1], self.cols):
-                    if abs(self.data[i][j]) < min:
-                        min = self.data[i][j]
+                    if abs(self[i][j]) < min:
+                        min = self[i][j]
                         ind = (i, j)
         elif row == 0 and col != 0:
             for i in range(index[0], self.rows):
-                if abs(self.data[i][index[1]]) < min:
-                    min = self.data[i][index[1]]
+                if abs(self[i][index[1]]) < min:
+                    min = self[i][index[1]]
                     ind = i
         elif row != 0 and col == 0:
             for j in range(index[1], self.rows):
-                if abs(self.data[index[0]][j]) < min:
-                    min = self.data[index[0]][j]
+                if abs(self[index[0]][j]) < min:
+                    min = self[index[0]][j]
                     ind = j
         return ind
 
@@ -292,11 +291,11 @@ class Matrix(object):
         self.reshape(self.rows, self.cols+Mat.cols)
         if Mat.cols == 1:
             for i in range(self.rows):
-                self.data[i][self.cols] = Mat.data[i]
+                self[i][self.cols] = Mat[i]
         else:
             for i in range(self.rows):
                 for j in range(self.cols-Mat.cols, self.cols):
-                    self.data[i][j] = Mat.data[i][j-self.cols]
+                    self[i][j] = Mat[i][j-self.cols]
 
     def invert(self) -> 'Matrix':
         if (self.rows != self.cols):
@@ -319,21 +318,21 @@ class Matrix(object):
         Out = Matrix(rows[1]-rows[0]+1,cols[1]-cols[0]+1)
         for i in range(Out.rows):
             for j in range(Out.cols):
-                Out.data[i][j] = self.data[rows[0]+i][cols[0]+j]
+                Out[i][j] = self[rows[0]+i][cols[0]+j]
         return Out
 
     def Identity(self) -> None:
         if self.rows != self.cols:
             self.reshape(self.rows, self.rows)
         for i in range(self.rows):
-            self.data[i][i] = 1
+            self[i][i] = 1
 
     def compare(self, Mat: 'Matrix') -> bool:
         if (self.rows != Mat.rows or self.cols != Mat.cols):
             print("Error matrices must be the same size")
         for i in range(self.rows):
             for j in range(self.cols):
-                if (math.isclose(self.data[i][j],Mat.data[i][j],rel_tol=1e-3) != 1):
+                if (math.isclose(self[i][j],Mat[i][j],rel_tol=1e-3) != 1):
                     return 0
         return 1
 
@@ -345,13 +344,13 @@ class Matrix(object):
         D = 1/d
         B = self.invert()
         for i in range(B.rows):
-            D = D * B.data[i][i]
+            D = D * B[i][i]
         
         L = self.copy()
         d = L.echelon(track=1)
         D = D*d
         for i in range(B.rows):
-            D = D * 1/B.data[i][i]
+            D = D * 1/B[i][i]
 
         return D
 
@@ -363,7 +362,7 @@ class Matrix(object):
             E.T()
         for i in range(E.rows):
             for j in range(E.cols):
-                if E.data[i][j] > 0:
+                if E[i][j] > 0:
                     rank += 1
                     break
 
@@ -381,10 +380,10 @@ class Matrix(object):
         for i in range(aug.rows):
             for j in range(aug.cols):
                 if ((i == (row-1)) | flag):
-                    aug.data[i][j] = self.data[i+1][j]
+                    aug[i][j] = self[i+1][j]
                     flag = 1
                 else:
-                    aug.data[i][j] = self.data[i][j]
+                    aug[i][j] = self[i][j]
 
         return aug
 
@@ -394,10 +393,10 @@ class Matrix(object):
         for i in range(aug.rows):
             for j in range(aug.cols):
                 if((j == (col-1)) | flag):
-                    aug.data[i][j] = self.data[i][j+1]
+                    aug[i][j] = self[i][j+1]
                     flag = 1
                 else:
-                    aug.data[i][j] = self.data[i][j]
+                    aug[i][j] = self[i][j]
 
         return aug
 
@@ -429,45 +428,45 @@ class Matrix(object):
         for k in range(n):
             s = 0
             for j in range(m):
-                s = s+(A.data[j][k])**2
+                s = s+(A[j][k])**2
             R.data[k][k] = math.sqrt(s)
             for j in range(m):
-                Q.data[j][k] = (A.data[j][k])/(R.data[k][k])
+                Q[j][k] = (A[j][k])/(R[k][k])
             for i in range(k+1,n):
                 s = 0
                 for j in range(m):
-                    s = s + (A.data[j][i]) * (Q .data[j][k])
+                    s = s + (A[j][i]) * (Q[j][k])
                 R.data[k][i] = s
                 for j in range(m):
-                    A.data[j][i] = A.data[j][i] - (R.data[k][i] * Q.data[j][k])
+                    A[j][i] = A[j][i] - (R[k][i] * Q[j][k])
         return (Q, R)
 
     def orthonormal(self) -> 'Matrix':
         self.T()
         U = Matrix(self.rows,self.cols)
         V = Matrix(1,self.cols)
-        V.data = self.data[0]
+        V.data = self[0]
         V = V.copy()
         V.normalize()
-        U.data[0] = V.data
+        U[0] = V.data
         for i in range(1,self.cols):
-            U.data[i] = self.data[i]
+            U[i] = self[i]
             for j in range(0,i-1):
                 V1, V2 = Matrix(1,self.cols), Matrix(1, self.cols)
-                V1.data = U.data[j]
-                V2.data = U.data[i]
+                V1.data = U[j]
+                V2.data = U[i]
                 print(V2.shape())
                 V2.T()
                 print(V2.shape())
                 n = V1.product(V2)
-                N = n.data[0][0]
+                N = n[0][0]
                 D = (V1.vecnorm())**2
                 val = -1*N/D
                 U.Rowadd(i,j,val)
             Urow = Matrix(1,self.cols)
-            Urow.data = U.data[i]
+            Urow.data = U[i]
             Urow.normalize()
-            U.data[i] = Urow.data
+            U[i] = Urow.data
         self.T()
         U.T()
         return U
@@ -481,4 +480,4 @@ class Matrix(object):
     def round(self, precision) -> None:
         for i in range(self.rows):
             for j in range(self.cols):
-                self.data[i][j] = round(self.data[i][j], precision)
+                self[i][j] = round(self[i][j], precision)

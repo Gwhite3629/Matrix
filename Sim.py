@@ -9,25 +9,25 @@ B.data = [[9,8,5],[7,6,4]]
 
 E = A.product(B)
 
-print(f'A.product(B): {E.data}')
+print(f'A.product(B):\n{E}')
 
-print(f'A Original:{A.data}')
+print(f'A Original:\n{A}')
 A.T()
-print(f'A Transpose:{A.data}, A.Shape:{A.shape()}')
+print(f'A Transpose:\n{A}, A.Shape:{A.shape()}')
 A.T()
-print(f'A Original: {A.data}, A.Shape: {A.shape()}')
+print(f'A Original:\n{A}, A.Shape: {A.shape()}')
 A.reshape(3, 3)
-print(f'A Resized: {A.data}, A.Shape {A.shape()}')
+print(f'A Resized:\n{A}, A.Shape {A.shape()}')
 
-print(f'B Original: {B.data}')
+print(f'B Original:\n{B}')
 D = B.copy()
-print(f'D Copy of B: {D.data}')
+print(f'D Copy of B:\n{D}')
 B.reshape(3, 3)
-print(f'B Resized: {B.data}')
+print(f'B Resized:\n{B}')
 
 C = A.product(B)
 
-print(f'A.Product(B): {C.data}')
+print(f'A.Product(B):\n{C}')
 
 T = M(3, 3)
 
@@ -43,7 +43,7 @@ B.round(10)
 
 D = T.det()
 
-print(f'Inverse of T: {B.data}')
+print(f'Inverse of T:\n{B}')
 print(f'Determinant of T: {D}')
 
 U = M(3, 3)
