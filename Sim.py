@@ -58,6 +58,7 @@ print(f'U: \n{U}')
 
 print(f'Q: \n{Q}')
 print(f'R: \n{R}')
+print(f'P: \n{Q.product(R)}')
 
 print(f'Echelon Det(U): {U.det()}')
 print(f'Laplace Det(U): {U.det(method="laplace")}')
@@ -68,4 +69,52 @@ C.data = [[1, 2, 3],
           [4, 5, 6],
           [7, 8, 9]]
 
-print(f'Cofactor of C: {C.cofactor(1, 2)}')
+cof = M(3,3)
+
+cof.data = [[C.cofactor(0, 0),C.cofactor(0, 1),C.cofactor(0, 2)],
+            [C.cofactor(1, 0),C.cofactor(1, 1),C.cofactor(1, 2)],
+            [C.cofactor(2, 0),C.cofactor(2, 1),C.cofactor(2, 2)]]
+
+print(f'Laplace Det(C): {C.det(method="laplace")}')
+
+print(f'Cofactor of C: \n{cof}')
+
+(Q, R) = C.QR()
+
+print(f'Q: \n{Q}')
+print(f'R: \n{R}')
+print(f'P: \n{Q.product(R)}')
+
+A = M(3, 3)
+B = M(3, 3)
+
+A.data = [[1, 2, 3],
+          [4, 5, 6],
+          [7, 8, 9]]
+B.data = [[1, 2, 3],
+          [4, 5, 6],
+          [7, 8, 9]]
+
+print(A.product(B))
+
+A.data = [[1, 2, 3],
+          [4, 5, 6],
+          [7, 8, 9]]
+
+print(A.eigenvalues(1000))
+
+#print(f'E: {A.det()}')
+print(f'L: {A.det("laplace")}')
+print(f'QR: {A.det("QR")}')
+print(f'E: {A.det("pseudo")}')
+
+L = M(5,5)
+
+L.data = [[1, 2, 3, 4, 0],
+          [5, 4, 0, 0, 1],
+          [2, 0, 0, 4, 0],
+          [3, 4, 2, 0, 1],
+          [2, 0, 5, 4, 3]]
+
+print(L.det())
+print(L.eigenvalues(1000))

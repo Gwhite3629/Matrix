@@ -1,4 +1,5 @@
 import math
+import cmath
 from pickle import TRUE
 from typing import Iterable
 from decimal import *
@@ -19,10 +20,18 @@ class Matrix(object):
     def __str__(self):
         rounded = self.copy()
         rounded.round(10)
-        return ('|\n'.join('|' + '  '.join(map(str, r)) for r in rounded)) + '|'
+        str = ''
+        for i in range(self.rows):
+            str += '|'
+            for j in range(self.cols):
+                str += f'{rounded[i][j]}'
+                if j < self.cols-1:
+                    str += ', '
+            str +='|\n'
+        return str
 
     def __getitem__(self,index):
-        return self.data[index]
+            return self.data[index]
 
     def __setitem__(self, index, val):
         self.data[index] = val
@@ -55,6 +64,17 @@ class Matrix(object):
 
         return Out
 
+    def subtract(self,Mat: 'Matrix') -> 'Matrix':
+        if (self.rows != Mat.rows or self.cols != Mat.cols):
+            print("Matrices must have same number of rows and cols")
+            return BufferError
+        Out = Matrix(self.rows, self.cols)
+        for row in range(self.rows):
+            for col in range(self.cols):
+                Out[row][col] = self[row][col] - Mat[row][col]
+        
+        return Out
+
     def Scamul(self,Scalar: float) -> 'Matrix':
         Out = Matrix(self.rows, self.cols)
         for row in range(self.rows):
@@ -64,18 +84,18 @@ class Matrix(object):
         return Out
 
     def product(self,Mat: 'Matrix') -> 'Matrix':
-        if (self.cols != Mat.rows):
+        if (not ((self.cols == Mat.rows) or (self.rows == Mat.cols))):
             print("Columns of matrix A must equal rows of matrix B")
             return BufferError
         Out = Matrix(self.rows, Mat.cols)
         if self.rows == 1:
             for i in range(self.cols):
                 for j in range(Mat.rows):
-                    Out[0][0] += (self[i] * Mat[j])
+                    Out[0][0] += (self[0][i] * Mat[j][0])
         elif self.cols == 1:
             for i in range(self.rows):
                 for j in range(Mat.cols):
-                    Out[0][0] += (self[i] * Mat[j])
+                    Out[i][j] += (self[i][0] * Mat[0][j])
         else:
             Out = Matrix(self.rows, Mat.cols)
             for i in range(self.rows):
@@ -143,13 +163,13 @@ class Matrix(object):
         return copy
 
     def T(self) -> None:
-        new = Matrix(rows=self.cols, cols=self.rows)
+        new = Matrix(self.cols, self.rows)
         if self.rows == 1:
             for col in range(self.cols):
-                new[col] = self[col]
+                new[col][0] = self[0][col]
         elif self.cols == 1:
             for row in range(self.rows):
-                new[row] = self[row]
+                new[row] = self[row][0]
         else:
             for row in range(self.rows):
                 for col in range(self.cols):
@@ -233,8 +253,8 @@ class Matrix(object):
             self[i],self[r] = self[r],self[i]
             d *= -1
             lv = self[r][lead]
-            self[r] = [ mrx / float(lv) for mrx in self[r]]
-            d *= 1/float(lv)
+            self[r] = [ mrx / lv for mrx in self[r]]
+            d *= 1/lv
             for i in range(self.rows):
                 if i != r:
                     lv = self[i][lead]
@@ -249,17 +269,17 @@ class Matrix(object):
         if row == col == 0:
             for i in range(index[0], self.rows):
                 for j in range(index[1], self.cols):
-                    if abs(self[i][j]) > max:
+                    if abs(self[i][j]) > abs(max):
                         max = self[i][j]
                         ind = (i, j)
         elif row == 0 and col != 0:
             for i in range(index[0], self.rows):
-                if abs(self[i][index[1]]) > max:
+                if abs(self[i][index[1]]) > abs(max):
                     max = self[i][index[1]]
                     ind = i
         elif row != 0 and col == 0:
             for j in range(index[1], self.rows):
-                if abs(self[index[0]][j]) > max:
+                if abs(self[index[0]][j]) > abs(max):
                     max = self[index[0]][j]
                     ind = j
         return ind
@@ -270,17 +290,17 @@ class Matrix(object):
         if row == col == 0:
             for i in range(index[0], self.rows):
                 for j in range(index[1], self.cols):
-                    if abs(self[i][j]) < min:
+                    if abs(self[i][j]) < abs(min):
                         min = self[i][j]
                         ind = (i, j)
         elif row == 0 and col != 0:
             for i in range(index[0], self.rows):
-                if abs(self[i][index[1]]) < min:
+                if abs(self[i][index[1]]) < abs(min):
                     min = self[i][index[1]]
                     ind = i
         elif row != 0 and col == 0:
             for j in range(index[1], self.rows):
-                if abs(self[index[0]][j]) < min:
+                if abs(self[index[0]][j]) < abs(min):
                     min = self[index[0]][j]
                     ind = j
         return ind
@@ -331,8 +351,8 @@ class Matrix(object):
     def compare(self, Mat: 'Matrix') -> bool:
         if (self.rows != Mat.rows or self.cols != Mat.cols):
             print("Error matrices must be the same size")
-        for i in range(self.rows):
-            for j in range(self.cols):
+        for i in range(self.rows-1):
+            for j in range(self.cols-1):
                 if (math.isclose(self[i][j],Mat[i][j],rel_tol=1e-3) != 1):
                     return 0
         return 1
@@ -355,12 +375,22 @@ class Matrix(object):
                 for i in range(B.rows):
                     D = D * 1/B[i][i]
 
-                return D
+                return round(D,10)
             case 'laplace':
                 D = 0
                 for j in range(self.cols):
-                    D += self[1][j] * self.cofactor(1, j)
-                return D
+                    D += self[0][j] * self.cofactor(0, j)
+                return round(D,10)
+            case 'QR':
+                (Q, R) = self.QR()
+                return R.det()
+            case 'pseudo':
+                L = self.eigenvalues(1000)
+                D = 1
+                for l in L:
+                    if (l != 0):
+                        D *= l
+                return round(D,10)
 
     def rank(self) -> int:
         rank = 0
@@ -398,8 +428,8 @@ class Matrix(object):
     def delcol(self, col) -> 'Matrix':
         aug = Matrix(self.rows, self.cols-1)
         flag = 0
-        for i in range(aug.rows):
-            for j in range(aug.cols):
+        for j in range(aug.cols):
+            for i in range(aug.rows):
                 if((j == (col)) | flag):
                     aug[i][j] = self[i][j+1]
                     flag = 1
@@ -424,30 +454,55 @@ class Matrix(object):
 #    def LU(self) ->
 #    def perm(self) ->
 #    def CT(self) ->
-#    def eigenvalue(self) ->
-#    def eigenvector(self, EV) ->
 
     def QR(self) -> tuple['Matrix', 'Matrix']:
-        n = self.cols
         m = self.rows
+        n = self.cols
         A = self.copy()
-        Q = Matrix(m, n)
-        R = Matrix(n, n)
-        for k in range(n):
+        d = Matrix(1,self.cols)
+        for j in range(n):
             s = 0
-            for j in range(m):
-                s += (A[j][k])**2
-            R[k][k] = math.sqrt(s)
-            for j in range(m):
-                Q[j][k] = (A[j][k])/(R[k][k])
-            for i in range(k+1,n):
+            for i in range(j,m):
+                s = s + (A[i][j])**2
+            s = math.sqrt(s)
+            if (A[j][j] > 0):
+                d[0][j] = -s
+            else:
+                d[0][j] = s
+            fak = math.sqrt(s*(s+abs(A[j][j])))
+            A[j][j] = A[j][j] - d[0][j]
+            for k in range(j, m):
+                A[k][j] = A[k][j]/fak
+            for i in range(j+1,n):
                 s = 0
-                for j in range(m):
-                    s += (A[j][i]) * (Q[j][k])
-                R[k][i] = s
-                for j in range(m):
-                    A[j][i] -= (R[k][i] * Q[j][k])
-        return (Q, R)
+                for k in range(j,m):
+                    s = s + (A[k][j]*A[k][i])
+                for k in range(j,m):
+                    A[k][i] = A[k][i] - (A[k][j]*s)
+
+        R = Matrix(self.rows,self.rows)
+        for i in range(self.rows):
+            for j in range(self.rows):
+                if (j > i):
+                    R[i][j] = A[i][j]
+                elif (i == j):
+                    R[i][j] = d[0][j]
+
+        Q = Matrix(self.rows,self.cols)
+        Q.Identity()
+        I = Matrix(self.rows,self.rows)
+        I.Identity()
+        for i in range(n):
+            w = Matrix(1,n)
+            for j in range(n):
+                if (j >= i):
+                    w[0][j] = A[j][i]
+            W = w.copy()
+            W.T()
+            P = I.subtract(W.product(w))
+            Q = Q.product(P)
+
+        return Q, R
 
     def orthonormal(self) -> 'Matrix':
         self.T()
@@ -489,3 +544,17 @@ class Matrix(object):
         for i in range(self.rows):
             for j in range(self.cols):
                 self[i][j] = round(self[i][j], precision)
+
+    def eigenvalues(self, iterations=40) -> list:
+        A = self.copy()
+        (Q,R) = A.QR()
+        q = Q.copy()
+        q.T()
+        A = (Q.product(self)).product(q)
+        for i in range(iterations):
+            (Q,R) = A.QR()
+            A = R.product(Q)
+        l = []
+        for j in range(self.rows):
+            l.append(round(A[j][j],10))
+        return l
